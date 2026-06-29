@@ -26,23 +26,23 @@ async function startBot() {
 
   sock.ev.on("connection.update", async ({ qr, connection }) => {
 
-    if (qr) {
-  const dataUrl = await QRCode.toDataURL(qr);
+  if (qr) {
+    const dataUrl = await QRCode.toDataURL(qr);
 
-  console.log("================================");
-  console.log(dataUrl);
-  console.log("================================");
-}
-    }
+    console.log("==============================");
+    console.log(dataUrl);
+    console.log("==============================");
+  }
 
-    if (connection === "open") {
-      console.log("✅ WhatsApp Connected");
-    }
+  if (connection === "open") {
+    console.log("✅ WhatsApp Connected");
+  }
 
-    if (connection === "close") {
-      startBot();
-    }
-  });
+  if (connection === "close") {
+    startBot();
+  }
+
+});
 
   sock.ev.on("messages.upsert", async ({ messages }) => {
 
