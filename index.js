@@ -4,7 +4,7 @@ import makeWASocket, {
 } from "@whiskeysockets/baileys";
 
 import OpenAI from "openai";
-import QRCode from "qrcode-terminal";
+import QRCode from "qrcode";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -27,8 +27,12 @@ async function startBot() {
   sock.ev.on("connection.update", async ({ qr, connection }) => {
 
     if (qr) {
-      QRCode.generate(qr, { small: true });
-      console.log("امسح QR من السجل بالأعلى");
+  const dataUrl = await QRCode.toDataURL(qr);
+
+  console.log("================================");
+  console.log(dataUrl);
+  console.log("================================");
+}
     }
 
     if (connection === "open") {
