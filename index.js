@@ -4,7 +4,7 @@ import makeWASocket, {
 } from "@whiskeysockets/baileys";
 
 import OpenAI from "openai";
-import qrcode from "qrcode-terminal";
+import QRCode from "qrcode-terminal";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -20,15 +20,15 @@ async function startBot() {
   const sock = makeWASocket({
     version,
     auth: state,
-    printQRInTerminal: false,
   });
 
   sock.ev.on("creds.update", saveCreds);
 
-  sock.ev.on("connection.update", ({ qr, connection }) => {
+  sock.ev.on("connection.update", async ({ qr, connection }) => {
+
     if (qr) {
-      qrcode.generate(qr, { small: true });
-      console.log("امسح الـ QR من واتساب");
+      QRCode.generate(qr, { small: true });
+      console.log("امسح QR من السجل بالأعلى");
     }
 
     if (connection === "open") {
@@ -41,32 +41,36 @@ async function startBot() {
   });
 
   sock.ev.on("messages.upsert", async ({ messages }) => {
+
     const msg = messages[0];
 
     if (!msg.message?.conversation) return;
 
     const question = msg.message.conversation;
 
-    const response = await openai.chat.completions.create({
+    const completion = await openai.chat.completions.create({
       model: "gpt-4.1-mini",
       messages: [
         {
           role: "system",
-          content: "أنت المساعد الشخصي للمعز. رد بالعربية وبأسلوب مهذب.",
+          content: "أنت مساعد ذكي يرد باللغة العربية."
         },
         {
           role: "user",
-          content: question,
-        },
-      ],
+          content: question
+        }
+      ]
     });
 
-    const answer = response.choices[0].message.content;
+    await sock.sendMessage(
+      msg.key.remoteJid,
+      {
+        text: completion.choices[0].message.content
+      }
+    );
 
-    await sock.sendMessage(msg.key.remoteJid, {
-      text: answer,
-    });
   });
+
 }
 
 startBot();
